@@ -2,6 +2,7 @@
   "name": "resumepool",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -10,7 +11,9 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^5.1.6",
+    "dotenv": "^16.4.5",
     "next": "14.2.4",
+    "openai": "^4.52.0",
     "react": "^18",
     "react-dom": "^18"
   },
