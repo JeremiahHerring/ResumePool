@@ -1,5 +1,11 @@
-export default function Home() {
-  return (
-    <h1>Hello World</h1>
-  )
+import { getUserId } from '@/config/getUserId';
+import HomeClient from './HomeClient';
+import { dbConnect } from '@/config/db'
+
+export default async function Home() {
+  const userId = await getUserId();
+  console.log(dbConnect)
+
+  return <HomeClient userId={userId} />;
+
 }

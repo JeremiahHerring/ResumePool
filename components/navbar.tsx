@@ -20,7 +20,8 @@ export default function Nav() {
 		{
 			isLoaded && user && (
 		<>
-			<Link href="/dashboard">Dashboard</Link>
+			<Link className='mr-5' href="resumes">Uploaded Resumes</Link>
+			<Link className='mr-5' href="/upload">Upload Resume Here</Link>
 			<UserButton afterSignOutUrl='/'/>
 		</>
 			)}
