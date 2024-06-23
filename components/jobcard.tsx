@@ -25,17 +25,6 @@ interface JobCardProps {
   userApplied: boolean; // Add a prop to check if user has applied
 }
 
-// Mapping of colors to Tailwind CSS classes
-const skillColorClasses: { [key: string]: string } = {
-  red: 'text-red-500',
-  green: 'text-green-500',
-  blue: 'text-blue-500',
-  yellow: 'text-yellow-500',
-  purple: 'text-purple-500',
-  pink: 'text-pink-500',
-  // Add more colors as needed
-};
-
 const JobCard: React.FC<JobCardProps> = ({ jobId, jobTitle, companyName, location, skills, salary, jobType, imageUrl, jobDescription, userApplied }) => {
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -113,7 +102,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobId, jobTitle, companyName, locatio
           <h3 className="text-2xl font-medium text-gray-200">{jobTitle}</h3>
           <div className="text-sm font-medium">
             {skills.map((skill, index) => (
-              <span key={index} className={`m-1 ml-0 inline-block ${skillColorClasses[skill.color] || 'text-gray-500'}`}>{skill.name}</span>
+              <span key={index} className="m-1 ml-0 inline-block text-gray-400">{skill.name}</span>
             ))}
           </div>
           <div className="mt-2 text-sm text-gray-400">{salary}</div>
