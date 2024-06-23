@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface Skill {
   name: string;
@@ -13,6 +13,7 @@ interface JobDescription {
 }
 
 interface JobCardProps {
+  jobId: string; // Add jobId to fetch time
   jobTitle: string;
   companyName: string;
   location: string;
@@ -23,9 +24,46 @@ interface JobCardProps {
   jobDescription: JobDescription;
 }
 
-const JobCard: React.FC<JobCardProps> = ({ jobTitle, companyName, location, skills, salary, jobType, imageUrl, jobDescription }) => {
+const JobCard: React.FC<JobCardProps> = ({ jobId, jobTitle, companyName, location, skills, salary, jobType, imageUrl, jobDescription }) => {
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [remainingTime, setRemainingTime] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchRemainingTime = async () => {
+      try {
+        // Mock value for remaining time in seconds (e.g., 3600 seconds = 1 hour)
+        const mockRemainingTime = 3600;
+        setRemainingTime(mockRemainingTime);
+
+        // Uncomment this and remove the above mock value when you have an actual API endpoint
+        // const response = await fetch(`/api/getRemainingTime?jobId=${jobId}`);
+        // const data = await response.json();
+        // setRemainingTime(data.remainingTime);
+      } catch (error) {
+        console.error('Error fetching remaining time:', error);
+      }
+    };
+
+    fetchRemainingTime();
+  }, [jobId]);
+
+  useEffect(() => {
+    if (remainingTime === null) return;
+
+    const timer = setInterval(() => {
+      setRemainingTime((prevTime) => (prevTime ? prevTime - 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [remainingTime]);
+
+  const formatTime = (seconds: number) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -60,10 +98,13 @@ const JobCard: React.FC<JobCardProps> = ({ jobTitle, companyName, location, skil
           </div>
           <div className="mt-2 text-sm text-gray-400">{salary}</div>
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <span className="text-sm font-medium text-gray-50">{jobType}</span>
           <a onClick={handleClickOpen} className="font-medium text-blue-500 transition-all duration-300 group-hover:text-blue-500/80 cursor-pointer">Apply Now</a>
         </div>
+        {remainingTime !== null && (
+          <div className="text-sm font-medium text-gray-50">Time Remaining: {formatTime(remainingTime)}</div>
+        )}
       </div>
       {open && (
         <div className="fixed inset-0 z-50 overflow-auto bg-gray-800 bg-opacity-75 flex items-center justify-center p-4">
