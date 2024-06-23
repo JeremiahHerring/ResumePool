@@ -2,6 +2,7 @@
   "name": "resumepool",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -13,7 +14,9 @@
     "@prisma/client": "^5.15.1",
     "@xata.io/cli": "^0.15.15",
     "@xata.io/client": "^0.29.5",
+    "dotenv": "^16.4.5",
     "framer-motion": "^11.2.11",
+    "groq-sdk": "^0.5.0",
     "mongoose": "^8.4.3",
     "next": "14.2.4",
     "react": "^18",
