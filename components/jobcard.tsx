@@ -37,6 +37,8 @@ const JobCard: React.FC<JobCardProps> = ({ jobTitle, companyName, location, skil
   return (
     <div>
       <div className="group bg-gray-900 p-4 transition-all duration-300 hover:rotate-1 lg:p-8 rounded-lg shadow-lg">
+        {/* Remove this div to get rid of the heart icon */}
+        {/*
         <div className="mb-3 text-right">
           <button className="text-gray-50 transition-all duration-300 hover:scale-110 hover:text-red-600">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
@@ -44,6 +46,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobTitle, companyName, location, skil
             </svg>
           </button>
         </div>
+        */}
         <div className="flex items-center gap-x-2">
           <img className="aspect-[2/2] w-16" src={imageUrl} alt={`${companyName} logo`} />
           <div>
