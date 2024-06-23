@@ -23,15 +23,34 @@ interface JobCardProps {
   imageUrl: string;
   jobDescription: JobDescription;
   userApplied: boolean; // Add a prop to check if user has applied
+  userPlacement?: number; // Add a prop for user placement
+  totalApplicants?: number; // Add a prop for total applicants
+  showRemainingTime?: boolean; // Add a prop to show/hide remaining time
 }
 
-const JobCard: React.FC<JobCardProps> = ({ jobId, jobTitle, companyName, location, skills, salary, jobType, imageUrl, jobDescription, userApplied }) => {
+const JobCard: React.FC<JobCardProps> = ({
+  jobId,
+  jobTitle,
+  companyName,
+  location,
+  skills,
+  salary,
+  jobType,
+  imageUrl,
+  jobDescription,
+  userApplied,
+  userPlacement,
+  totalApplicants,
+  showRemainingTime = true
+}) => {
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
   const [hasApplied, setHasApplied] = useState(userApplied);
 
   useEffect(() => {
+    if (!showRemainingTime) return;
+
     const fetchRemainingTime = async () => {
       try {
         // Mock value for remaining time in seconds (e.g., 3600 seconds = 1 hour)
@@ -48,7 +67,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobId, jobTitle, companyName, locatio
     };
 
     fetchRemainingTime();
-  }, [jobId]);
+  }, [jobId, showRemainingTime]);
 
   useEffect(() => {
     if (remainingTime === null) return;
@@ -85,16 +104,16 @@ const JobCard: React.FC<JobCardProps> = ({ jobId, jobTitle, companyName, locatio
     if (!file) {
       return;
     }
-  
+
     const formData = new FormData();
     formData.append('resume', file);
-  
+
     try {
       const response = await fetch('/upload', {
         method: 'POST',
         body: formData,
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         console.log('File uploaded successfully:', data);
@@ -148,8 +167,14 @@ const JobCard: React.FC<JobCardProps> = ({ jobId, jobTitle, companyName, locatio
             <a onClick={handleClickOpen} className="font-medium text-blue-500 transition-all duration-300 group-hover:text-blue-500/80 cursor-pointer">Apply Now</a>
           )}
         </div>
-        {remainingTime !== null && (
+        {showRemainingTime && remainingTime !== null && (
           <div className="text-sm font-medium text-gray-50">Time Remaining: {formatTime(remainingTime)}</div>
+        )}
+        {userPlacement !== undefined && totalApplicants !== undefined && (
+          <div className="mt-4 text-sm font-medium text-gray-50">
+            Total Applicant Count: {totalApplicants}<br/>
+            Your Placement: {userPlacement}
+          </div>
         )}
       </div>
       {open && (
