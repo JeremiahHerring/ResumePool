@@ -25,6 +25,7 @@ interface JobCardProps {
 
 const JobCard: React.FC<JobCardProps> = ({ jobTitle, companyName, location, skills, salary, jobType, imageUrl, jobDescription }) => {
   const [open, setOpen] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -34,16 +35,15 @@ const JobCard: React.FC<JobCardProps> = ({ jobTitle, companyName, location, skil
     setOpen(false);
   };
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      setFile(event.target.files[0]);
+    }
+  };
+
   return (
     <div>
       <div className="group bg-gray-900 p-4 transition-all duration-300 hover:rotate-1 lg:p-8 rounded-lg shadow-lg">
-        <div className="mb-3 text-right">
-          <button className="text-gray-50 transition-all duration-300 hover:scale-110 hover:text-red-600">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
-              <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-            </svg>
-          </button>
-        </div>
         <div className="flex items-center gap-x-2">
           <img className="aspect-[2/2] w-16" src={imageUrl} alt={`${companyName} logo`} />
           <div>
@@ -103,19 +103,31 @@ const JobCard: React.FC<JobCardProps> = ({ jobTitle, companyName, location, skil
               <form>
                 <label className="block">
                   <span className="sr-only">Choose profile photo</span>
-                  <input type="file" className="block w-full text-sm text-gray-500
-                    file:me-4 file:py-2 file:px-4
-                    file:rounded-lg file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-blue-600 file:text-white
-                    hover:file:bg-blue-700
-                    file:disabled:opacity-50 file:disabled:pointer-events-none
-                    dark:text-neutral-500
-                    dark:file:bg-blue-500
-                    dark:hover:file:bg-blue-400
-                  ">
-                  </input>
+                  <input 
+                    type="file" 
+                    accept=".pdf" 
+                    className="block w-full text-sm text-gray-500
+                      file:me-4 file:py-2 file:px-4
+                      file:rounded-lg file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-blue-600 file:text-white
+                      hover:file:bg-blue-700
+                      file:disabled:opacity-50 file:disabled:pointer-events-none
+                      dark:text-neutral-500
+                      dark:file:bg-blue-500
+                      dark:hover:file:bg-blue-400"
+                    onChange={handleFileChange}
+                  />
                 </label>
+                <button 
+                  type="button" 
+                  className={`mt-4 w-full py-2 px-4 rounded-lg text-sm font-semibold ${
+                    file ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-500 text-gray-200 cursor-not-allowed'
+                  }`}
+                  disabled={!file}
+                >
+                  Upload Resume
+                </button>
               </form>
             </div>
           </div>
