@@ -1,5 +1,5 @@
 'use client'
-import { useUser } from '@clerk/nextjs'
+import { UserButton, useUser } from '@clerk/nextjs'
 import Link from 'next/link'
 import React from 'react'
 
@@ -18,9 +18,13 @@ export default function Nav() {
 			</a>
 		</div>
 		{
-			isLoaded && user && 
-			<Link href="/dashboard">Dashboard</Link>
-		}
+			isLoaded && user && (
+		<>
+			<Link className='mr-5' href="resumes">Uploaded Resumes</Link>
+			<Link className='mr-5' href="/upload">Upload Resume Here</Link>
+			<UserButton afterSignOutUrl='/'/>
+		</>
+			)}
 	</nav>
         </header>
     )
