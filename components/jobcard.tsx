@@ -22,12 +22,14 @@ interface JobCardProps {
   jobType: string;
   imageUrl: string;
   jobDescription: JobDescription;
+  userApplied: boolean; // Add a prop to check if user has applied
 }
 
-const JobCard: React.FC<JobCardProps> = ({ jobId, jobTitle, companyName, location, skills, salary, jobType, imageUrl, jobDescription }) => {
+const JobCard: React.FC<JobCardProps> = ({ jobId, jobTitle, companyName, location, skills, salary, jobType, imageUrl, jobDescription, userApplied }) => {
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
+  const [hasApplied, setHasApplied] = useState(userApplied);
 
   useEffect(() => {
     const fetchRemainingTime = async () => {
@@ -79,6 +81,13 @@ const JobCard: React.FC<JobCardProps> = ({ jobId, jobTitle, companyName, locatio
     }
   };
 
+  const handleApply = () => {
+    // Handle the application logic here, e.g., upload the resume, etc.
+    // After successfully applying, update the state to reflect that the user has applied.
+    setHasApplied(true);
+    handleClose();
+  };
+
   return (
     <div>
       <div className="group bg-gray-900 p-4 transition-all duration-300 hover:rotate-1 lg:p-8 rounded-lg shadow-lg">
@@ -100,7 +109,23 @@ const JobCard: React.FC<JobCardProps> = ({ jobId, jobTitle, companyName, locatio
         </div>
         <div className="flex items-center justify-between mb-4">
           <span className="text-sm font-medium text-gray-50">{jobType}</span>
-          <a onClick={handleClickOpen} className="font-medium text-blue-500 transition-all duration-300 group-hover:text-blue-500/80 cursor-pointer">Apply Now</a>
+          {hasApplied ? (
+            <span className="font-medium text-green-500">
+              <svg
+                className="inline h-5 w-5 mr-1"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              Applied
+            </span>
+          ) : (
+            <a onClick={handleClickOpen} className="font-medium text-blue-500 transition-all duration-300 group-hover:text-blue-500/80 cursor-pointer">Apply Now</a>
+          )}
         </div>
         {remainingTime !== null && (
           <div className="text-sm font-medium text-gray-50">Time Remaining: {formatTime(remainingTime)}</div>
@@ -166,6 +191,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobId, jobTitle, companyName, locatio
                     file ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-500 text-gray-200 cursor-not-allowed'
                   }`}
                   disabled={!file}
+                  onClick={handleApply}
                 >
                   Upload Resume
                 </button>
