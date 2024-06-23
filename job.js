@@ -1,87 +1,114 @@
-import OpenAI from "openai";
-import dotenv from "dotenv";
+import weaviate from 'weaviate-client';
+import openai from 'openai';
+import { load } from 'dotenv';
 
-// Load environment variables from .env file
-dotenv.config();
+load();
 
-// Set up OpenAI client
-const openai = new OpenAI(process.env.OPENAI_API_KEY);
+// OpenAI API setup
+openai.apiKey = process.env.OPENAI_API_KEY;
 
-// Define the job template
-const jobTemplate = {
-  jobTitle: 'UI/UX Designer',
-  companyName: 'Apple',
-  location: 'Cupertino, CA, USA',
-  skills: [
-    { name: 'HTML', color: 'blue' },
-    { name: 'CSS', color: 'yellow' },
-    { name: 'FIGMA', color: 'pink' },
-    { name: 'Ad. XD', color: 'lime' },
-    { name: 'Illustrator', color: 'blue' },
-  ],
-  salary: '$60K - $100K per year',
-  jobType: 'Full Time',
-  imageUrl: 'https://img.icons8.com/fluency/48/null/mac-os.png',
-  jobDescription: {
+// Weaviate client setup
+const client = weaviate.client({
+  scheme: 'http',
+  host: 'localhost:8080'
+});
+
+const jobTemplates = [
+  {
+    title: "UI/UX Designer",
+    company: "Apple",
+    location: "Cupertino, CA, USA",
+    skills: ["HTML", "CSS", "FIGMA", "Adobe XD", "Illustrator"],
+    salary: "$60K - $100K per year",
+    type: "Full Time",
+    image_url: "https://img.icons8.com/fluency/48/null/mac-os.png",
     responsibilities: [
-      'Design and improve user interfaces for Apple applications and websites.',
-      'Collaborate with product and engineering teams.',
-      'Create wireframes, prototypes, and high-fidelity designs.'
+      "Design and improve user interfaces for Apple applications and websites.",
+      "Collaborate with product and engineering teams.",
+      "Create wireframes, prototypes, and high-fidelity designs."
     ],
     qualifications: [
-      'Bachelor’s degree in Design, Computer Science, or related field.',
-      '3+ years of experience in UI/UX design.',
-      'Proficiency in design tools such as Figma and Adobe XD.',
-      'Strong portfolio showcasing design skills.'
+      "Bachelor’s degree in Design, Computer Science, or related field.",
+      "3+ years of experience in UI/UX design.",
+      "Proficiency in design tools such as Figma and Adobe XD.",
+      "Strong portfolio showcasing design skills."
     ]
-  }
-};
+  },
+  // Add more job templates here...
+];
 
-// Function to generate job description using OpenAI
-async function generateJobDescription(job) {
-  const skillsList = job.skills.map(skill => skill.name).join(', ');
-  const responsibilitiesList = job.jobDescription.responsibilities.join(', ');
-  const qualificationsList = job.jobDescription.qualifications.join(', ');
+async function generateJobDescription(template) {
+  const skillsList = template.skills.join(', ');
+  const responsibilitiesList = template.responsibilities.join(', ');
+  const qualificationsList = template.qualifications.join(', ');
 
   const prompt = `
-  Generate a detailed job description based on the following template:
-  Job Title: ${job.jobTitle}
-  Company Name: ${job.companyName}
-  Location: ${job.location}
-  Skills: ${skillsList}
-  Salary: ${job.salary}
-  Job Type: ${job.jobType}
-  Image URL: ${job.imageUrl}
-  Responsibilities: ${responsibilitiesList}
-  Qualifications: ${qualificationsList}
+    Create a detailed job description based on the following information:
+    Job Title: ${template.title}
+    Company Name: ${template.company}
+    Location: ${template.location}
+    Skills: ${skillsList}
+    Salary: ${template.salary}
+    Job Type: ${template.type}
+    Image URL: ${template.image_url}
 
-  Please format the job description as follows:
-  Title: [Job Title]
-  Company: [Company Name]
-  Location: [Location]
-  Salary: [Salary]
-  Job Type: [Job Type]
-  Image: [Image URL]
+    Responsibilities:
+    ${responsibilitiesList}
 
-  Responsibilities:
-  - [Responsibility 1]
-  - [Responsibility 2]
-  - [Responsibility 3]
+    Qualifications:
+    ${qualificationsList}
 
-  Qualifications:
-  - [Qualification 1]
-  - [Qualification 2]
-  - [Qualification 3]
+    Format the job description as follows:
+    Title: [Job Title]
+    Company: [Company Name]
+    Location: [Location]
+    Salary: [Salary]
+    Job Type: [Job Type]
+    Image: [Image URL]
+
+    Responsibilities:
+    - [Responsibility 1]
+    - [Responsibility 2]
+    - [Responsibility 3]
+
+    Qualifications:
+    - [Qualification 1]
+    - [Qualification 2]
+    - [Qualification 3]
   `;
 
-  const response = await openai.Completion.create({
-    model: "text-davinci-003",
-    prompt: prompt,
-    max_tokens: 500,
+  const response = await openai.ChatCompletion.create({
+    model: "gpt-4",
+    messages: [
+      { role: "system", content: "You are a helpful assistant." },
+      { role: "user", content: prompt }
+    ]
   });
 
-  return response.choices[0].text.trim();
+  return {
+    title: template.title,
+    company: template.company,
+    location: template.location,
+    skills: template.skills,
+    salary: template.salary,
+    type: template.type,
+    image_url: template.image_url,
+    responsibilities: template.responsibilities,
+    qualifications: template.qualifications,
+    created_at: new Date().toISOString()
+  };
 }
 
-// Example usage
-generateJobDescription(jobTemplate).then(jobDescription => console.log(`Generated Job Description:\n${jobDescription}`));
+async function storeJobInWeaviate(job) {
+  await client.dataObject.create(job, "Job");
+  console.log('Job stored in Weaviate');
+}
+
+async function generateAndStoreJobs() {
+  for (const template of jobTemplates) {
+    const jobDescription = await generateJobDescription(template);
+    await storeJobInWeaviate(jobDescription);
+  }
+}
+
+generateAndStoreJobs();
