@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface Skill {
   name: string;
@@ -13,6 +13,7 @@ interface JobDescription {
 }
 
 interface JobCardProps {
+  jobId: string; // Add jobId to fetch time
   jobTitle: string;
   companyName: string;
   location: string;
@@ -21,11 +22,61 @@ interface JobCardProps {
   jobType: string;
   imageUrl: string;
   jobDescription: JobDescription;
+  userApplied: boolean; // Add a prop to check if user has applied
 }
 
-const JobCard: React.FC<JobCardProps> = ({ jobTitle, companyName, location, skills, salary, jobType, imageUrl, jobDescription }) => {
+// Mapping of colors to Tailwind CSS classes
+const skillColorClasses: { [key: string]: string } = {
+  red: 'text-red-500',
+  green: 'text-green-500',
+  blue: 'text-blue-500',
+  yellow: 'text-yellow-500',
+  purple: 'text-purple-500',
+  pink: 'text-pink-500',
+  // Add more colors as needed
+};
+
+const JobCard: React.FC<JobCardProps> = ({ jobId, jobTitle, companyName, location, skills, salary, jobType, imageUrl, jobDescription, userApplied }) => {
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [remainingTime, setRemainingTime] = useState<number | null>(null);
+  const [hasApplied, setHasApplied] = useState(userApplied);
+
+  useEffect(() => {
+    const fetchRemainingTime = async () => {
+      try {
+        // Mock value for remaining time in seconds (e.g., 3600 seconds = 1 hour)
+        const mockRemainingTime = 3600;
+        setRemainingTime(mockRemainingTime);
+
+        // Uncomment this and remove the above mock value when you have an actual API endpoint
+        // const response = await fetch(`/api/getRemainingTime?jobId=${jobId}`);
+        // const data = await response.json();
+        // setRemainingTime(data.remainingTime);
+      } catch (error) {
+        console.error('Error fetching remaining time:', error);
+      }
+    };
+
+    fetchRemainingTime();
+  }, [jobId]);
+
+  useEffect(() => {
+    if (remainingTime === null) return;
+
+    const timer = setInterval(() => {
+      setRemainingTime((prevTime) => (prevTime ? prevTime - 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [remainingTime]);
+
+  const formatTime = (seconds: number) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -39,6 +90,13 @@ const JobCard: React.FC<JobCardProps> = ({ jobTitle, companyName, location, skil
     if (event.target.files && event.target.files[0]) {
       setFile(event.target.files[0]);
     }
+  };
+
+  const handleApply = () => {
+    // Handle the application logic here, e.g., upload the resume, etc.
+    // After successfully applying, update the state to reflect that the user has applied.
+    setHasApplied(true);
+    handleClose();
   };
 
   return (
@@ -55,15 +113,34 @@ const JobCard: React.FC<JobCardProps> = ({ jobTitle, companyName, location, skil
           <h3 className="text-2xl font-medium text-gray-200">{jobTitle}</h3>
           <div className="text-sm font-medium">
             {skills.map((skill, index) => (
-              <span key={index} className={`m-1 ml-0 inline-block text-${skill.color}-500`}>{skill.name}</span>
+              <span key={index} className={`m-1 ml-0 inline-block ${skillColorClasses[skill.color] || 'text-gray-500'}`}>{skill.name}</span>
             ))}
           </div>
           <div className="mt-2 text-sm text-gray-400">{salary}</div>
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <span className="text-sm font-medium text-gray-50">{jobType}</span>
-          <a onClick={handleClickOpen} className="font-medium text-blue-500 transition-all duration-300 group-hover:text-blue-500/80 cursor-pointer">Apply Now</a>
+          {hasApplied ? (
+            <span className="font-medium text-green-500">
+              <svg
+                className="inline h-5 w-5 mr-1"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              Applied
+            </span>
+          ) : (
+            <a onClick={handleClickOpen} className="font-medium text-blue-500 transition-all duration-300 group-hover:text-blue-500/80 cursor-pointer">Apply Now</a>
+          )}
         </div>
+        {remainingTime !== null && (
+          <div className="text-sm font-medium text-gray-50">Time Remaining: {formatTime(remainingTime)}</div>
+        )}
       </div>
       {open && (
         <div className="fixed inset-0 z-50 overflow-auto bg-gray-800 bg-opacity-75 flex items-center justify-center p-4">
@@ -125,6 +202,7 @@ const JobCard: React.FC<JobCardProps> = ({ jobTitle, companyName, location, skil
                     file ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-500 text-gray-200 cursor-not-allowed'
                   }`}
                   disabled={!file}
+                  onClick={handleApply}
                 >
                   Upload Resume
                 </button>
