@@ -68,6 +68,24 @@ const JobCard: React.FC<JobCardProps> = ({ jobTitle, companyName, location, skil
       {open && (
         <div className="fixed inset-0 z-50 overflow-auto bg-gray-800 bg-opacity-75 flex items-center justify-center p-4">
           <div className="relative p-8 bg-gray-900 text-white w-full max-w-md m-auto flex-col flex rounded-lg shadow-lg">
+            <span className="absolute top-0 right-0 p-4">
+              <button onClick={handleClose}>
+                <svg
+                  className="h-6 w-6 text-gray-400 hover:text-gray-200"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </span>
             <h2 className="text-2xl mb-4">{jobTitle}</h2>
             <h3 className="text-xl font-semibold">Responsibilities</h3>
             <ul className="list-disc list-inside mb-4 text-gray-400">
