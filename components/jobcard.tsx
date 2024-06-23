@@ -81,11 +81,32 @@ const JobCard: React.FC<JobCardProps> = ({ jobId, jobTitle, companyName, locatio
     }
   };
 
-  const handleApply = () => {
-    // Handle the application logic here, e.g., upload the resume, etc.
-    // After successfully applying, update the state to reflect that the user has applied.
-    setHasApplied(true);
-    handleClose();
+  const handleApply = async () => {
+    if (!file) {
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append('resume', file);
+  
+    try {
+      const response = await fetch('/upload', {
+        method: 'POST',
+        body: formData,
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log('File uploaded successfully:', data);
+        // Update the state to reflect that the user has applied
+        setHasApplied(true);
+        handleClose();
+      } else {
+        console.error('Failed to upload file');
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
   };
 
   return (
